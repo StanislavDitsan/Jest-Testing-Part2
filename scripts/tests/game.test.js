@@ -12,8 +12,11 @@ const {
     showScore,
     addTurn,
     lightsOn,
-    showTurns
+    showTurns,
+    playerTurn
 } = require("../game");
+
+jest.spyOn(window, "alert").mockImplementation(() => {});
 
 beforeAll(() => {
     let fs = require("fs");
@@ -23,7 +26,13 @@ beforeAll(() => {
     document.close();
 });
 
-// Game object
+describe("pre-game", () => {
+    test("clicking buttons before newGame should fail", () => {
+        game.lastButton = "";
+        document.getElementById("button2").click();
+        expect(game.lastButton).toEqual("");
+    });
+});
 
 describe("game object contains correct keys", () => {
     test("score key exists", () => {
@@ -44,6 +53,15 @@ describe("game object contains correct keys", () => {
     test("turnNumber key exists", () => {
         expect("turnNumber" in game).toBe(true);
     });
+    test("lastButton key exists", () => {
+        expect("lastButton" in game).toBe(true);
+    });
+    test("turnInProgress key exists", () => {
+        expect("turnInProgress" in game).toBe(true);
+    });
+    test("turnInProgress key value is false", () => {
+        expect("turnInProgress" in game).toBe(true);
+    });
 });
 
 describe("newGame works correctly", () => {
@@ -54,27 +72,27 @@ describe("newGame works correctly", () => {
         document.getElementById("score").innerText = "42";
         newGame();
     });
-    test("should set game score to zero", () => {
-        expect(game.score).toEqual(0);
-    });
-    test("should be one move in the computer's game array", () => {
-        expect(game.currentGame.length).toEqual(1);
-    });
-    test("should clear the player moves array", () => {
-        expect(game.playerMoves.length).toEqual(0);
-    });
-    test("should display 0 for the element with id of score", () => {
-        expect(document.getElementById("score").innerText).toEqual(0);
-    });
     test("expect data-listener to be true", () => {
         const elements = document.getElementsByClassName("circle");
         for (let element of elements) {
             expect(element.getAttribute("data-listener")).toEqual("true");
         }
     });
+    test("should set game score to zero", () => {
+        expect(game.score).toEqual(0);
+    });
+    test("should display 0 for the element with id of score", () => {
+        expect(document.getElementById("score").innerText).toEqual(0);
+    });
+    test("should clear the player moves array", () => {
+        expect(game.playerMoves.length).toBe(0);
+    });
+    test("should add one move to the computer's game array", () => {
+        expect(game.currentGame.length).toBe(1);
+    });
 });
 
-describe("game play works correctly", () => {
+describe("gameplay works correctly", () => {
     beforeEach(() => {
         game.score = 0;
         game.currentGame = [];
@@ -95,9 +113,24 @@ describe("game play works correctly", () => {
         lightsOn(game.currentGame[0]);
         expect(button.classList).toContain("light");
     });
+    test("should toggle turnInProgress to true", () => {
+        showTurns();
+        expect(game.turnInProgress).toBe(true);
+    });
     test("showTurns should update game.turnNumber", () => {
         game.turnNumber = 42;
         showTurns();
         expect(game.turnNumber).toBe(0);
+    });
+    test("should increment the score if the turn is correct", () => {
+        game.playerMoves.push(game.currentGame[0]);
+        playerTurn();
+        expect(game.score).toBe(1);
+    });
+    test("clicking during computer sequence should fail", () => {
+        showTurns();
+        game.lastButton = "";
+        document.getElementById("button2").click();
+        expect(game.lastButton).toEqual("");
     });
 });
