@@ -13,14 +13,21 @@ function newGame() {
     addTurn();
 }
 
-function addTurn(){
+function addTurn() {
     game.playerMoves = [];
-    game.currentGame.push(game.choices[(Math.floor(Math.random()* 4))]);
+    game.currentGame.push(game.choices[(Math.floor(Math.random() * 4))]);
 
 }
 
-function showScore(){
+function showScore() {
     document.getElementById("score").innerText = game.score;
+}
+
+function lightsOn(circ) {
+    document.getElementById(circ).classList.add("light");
+    setTimeout(() => {
+        document.getElementById(circ).classList.remove("light");
+    }, 400);
 }
 
 
@@ -29,5 +36,6 @@ module.exports = {
     game,
     newGame,
     showScore,
-    addTurn
+    addTurn,
+    lightsOn
 };
